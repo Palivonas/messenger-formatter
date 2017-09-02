@@ -1,0 +1,82 @@
+<html>
+    <head>
+        <title>Code formatter for Facebook Messenger</title>
+        <meta name="description" content="A tool to add Facebook Messenger monospace markup to code">
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                display: flex;
+                flex-direction: column;
+            }
+            pre {
+                display: flex;
+                flex: 1 0 auto;
+                border: 1px solid black;
+            }
+            code {
+                width: 100%;
+                overflow: scroll;
+                padding: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <pre><code id="input" contenteditable></code></pre>
+        <pre><code id="output" contenteditable></code></pre>
+
+        <script>
+            const input = document.getElementById('input');
+            const output = document.getElementById('output');
+            
+            function toMessenger () {
+                output.innerText = !input.innerText ? '' : input.innerText
+                    .trimRight()
+                    .split('\n')
+                    .map(line => '`|  ' + line + '`')
+                    .join('\n');
+            }
+
+            function fromMessenger () {
+                input.innerText = 
+                    ('\n' + output.innerText.trimRight() + '\n')
+                    .replace(/(\n`?\|  )/g, '\n')
+                    .replace(/`\n/g, '\n')
+                    .slice(1, -1);
+            }
+
+            function pastePlain (event) {
+                event.preventDefault();
+                const text = event.clipboardData.getData('text/plain');
+                document.execCommand('insertHTML', false, text);
+            }
+
+            input.addEventListener('input', toMessenger);
+            output.addEventListener('input', fromMessenger);
+
+            input.addEventListener('paste', pastePlain);
+            output.addEventListener('paste', pastePlain);
+
+            const example =
+`/**
+ * Paste some code into the first box
+ * Copy from the second box
+ * Paste to Facebook Messenger
+ * It's in monospace and whitespace is preserved!
+ */
+
+function exampleCode () {
+    doThis();
+    doThat();
+    whosAGoodBoy(new Sparky());
+}
+
+// <a href="https://github.com/Palivonas/messenger-formatter">https://github.com/Palivonas/messenger-formatter</a>`;
+            input.innerHTML = example;
+            toMessenger();
+        </script>
+    </body>
+</html>
