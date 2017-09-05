@@ -36,14 +36,18 @@
                 output.innerText = !input.innerText ? '' : input.innerText
                     .trimRight()
                     .split('\n')
-                    .map(line => '`|  ' + line + '`')
+                    .map(line => '`|' + (' ' + line).trimRight() + '`')
                     .join('\n');
             }
 
             function fromMessenger () {
                 input.innerText = 
-                    ('\n' + output.innerText.trimRight() + '\n')
-                    .replace(/(\n`?\|  )/g, '\n')
+                    ('\n' + output.innerText.trim() + '\n')
+                    .split('\n')
+                    .map(line => line.trim())
+                    .join('\n')
+                    .replace(/(\n`?\| )/g, '\n')
+                    .replace(/(\n`?\|`?\n)/g, '\n\n')
                     .replace(/`\n/g, '\n')
                     .slice(1, -1);
             }
