@@ -12,10 +12,15 @@
                 display: flex;
                 flex-direction: column;
             }
-            pre {
+            textarea {
+                border: none;
                 display: flex;
                 flex: 1 0 auto;
-                border: 1px solid black;
+                font-family: monospace;
+                padding: 5px;
+            }
+            textarea:first-child {
+                border-bottom: 1px solid black;
             }
             code {
                 width: 100%;
@@ -25,44 +30,41 @@
         </style>
     </head>
     <body>
-        <pre><code id="input" contenteditable></code></pre>
-        <pre><code id="output" contenteditable></code></pre>
+        <textarea id="input"></textarea>
+        <textarea id="output"></textarea>
 
         <script>
             const input = document.getElementById('input');
             const output = document.getElementById('output');
             
             function toMessenger () {
-                output.innerText = !input.innerText ? '' : input.innerText
+                let lines = !input.value ? '' : input.value
                     .trimRight()
-                    .split('\n')
-                    .map(line => '`|' + (' ' + line).trimRight() + '`')
+                    .split('\n');
+                const shouldAddPipes = lines.find(line => line.match(/^[ \t]/));
+                if (shouldAddPipes) {
+                    lines = lines.map(line => '|' + line.trimRight());
+                }
+                output.value = lines
+                    .map(line => '`' + line.trimRight() + '`')
+                    .map(line => line == '``' ? '' : line)
                     .join('\n');
             }
 
             function fromMessenger () {
-                input.innerText = 
-                    ('\n' + output.innerText.trim() + '\n')
+                input.value = 
+                    ('\n' + output.value.trim() + '\n')
                     .split('\n')
                     .map(line => line.trim())
                     .join('\n')
-                    .replace(/(\n`?\| )/g, '\n')
-                    .replace(/(\n`?\|`?\n)/g, '\n\n')
+                    .replace(/(\n`?\|?)/g, '\n')
+                    .replace(/(\n`?\|?`?\n)/g, '\n\n')
                     .replace(/`\n/g, '\n')
                     .slice(1, -1);
             }
 
-            function pastePlain (event) {
-                event.preventDefault();
-                const text = event.clipboardData.getData('text/plain');
-                document.execCommand('insertHTML', false, text);
-            }
-
             input.addEventListener('input', toMessenger);
             output.addEventListener('input', fromMessenger);
-
-            input.addEventListener('paste', pastePlain);
-            output.addEventListener('paste', pastePlain);
 
             const example =
 `/**
@@ -78,8 +80,8 @@ function exampleCode () {
     whosAGoodBoy(new Sparky());
 }
 
-// <a href="https://github.com/Palivonas/messenger-formatter">https://github.com/Palivonas/messenger-formatter</a>`;
-            input.innerHTML = example;
+// https://github.com/Palivonas/messenger-formatter`;
+            input.value = example;
             toMessenger();
         </script>
     </body>
