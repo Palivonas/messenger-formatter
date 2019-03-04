@@ -1,3 +1,5 @@
+> Now obselete as Messenger supports \``` code blocks.
+
 # Messenger code formatter
 
 Demo: https://messengercode.surge.sh/
